@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="678" viewBox="0 0 900 678" role="img" aria-label="Trias 流水线运行日志回放">
+<style>@keyframes k0{0%,0.00%{opacity:0}0.60%,96%{opacity:1}100%{opacity:0}}.l0{animation:k0 15.8s linear infinite}@keyframes k1{0%,2.66%{opacity:0}3.26%,96%{opacity:1}100%{opacity:0}}.l1{animation:k1 15.8s linear infinite}@keyframes k2{0%,5.33%{opacity:0}5.93%,96%{opacity:1}100%{opacity:0}}.l2{animation:k2 15.8s linear infinite}@keyframes k3{0%,7.99%{opacity:0}8.59%,96%{opacity:1}100%{opacity:0}}.l3{animation:k3 15.8s linear infinite}@keyframes k4{0%,10.66%{opacity:0}11.26%,96%{opacity:1}100%{opacity:0}}.l4{animation:k4 15.8s linear infinite}@keyframes k5{0%,13.32%{opacity:0}13.92%,96%{opacity:1}100%{opacity:0}}.l5{animation:k5 15.8s linear infinite}@keyframes k6{0%,15.99%{opacity:0}16.59%,96%{opacity:1}100%{opacity:0}}.l6{animation:k6 15.8s linear infinite}@keyframes k7{0%,18.65%{opacity:0}19.25%,96%{opacity:1}100%{opacity:0}}.l7{animation:k7 15.8s linear infinite}@keyframes k8{0%,21.32%{opacity:0}21.92%,96%{opacity:1}100%{opacity:0}}.l8{animation:k8 15.8s linear infinite}@keyframes k9{0%,23.98%{opacity:0}24.58%,96%{opacity:1}100%{opacity:0}}.l9{animation:k9 15.8s linear infinite}@keyframes k10{0%,26.65%{opacity:0}27.25%,96%{opacity:1}100%{opacity:0}}.l10{animation:k10 15.8s linear infinite}@keyframes k11{0%,29.31%{opacity:0}29.91%,96%{opacity:1}100%{opacity:0}}.l11{animation:k11 15.8s linear infinite}@keyframes k12{0%,31.98%{opacity:0}32.58%,96%{opacity:1}100%{opacity:0}}.l12{animation:k12 15.8s linear infinite}@keyframes k13{0%,34.64%{opacity:0}35.24%,96%{opacity:1}100%{opacity:0}}.l13{animation:k13 15.8s linear infinite}@keyframes k14{0%,37.31%{opacity:0}37.91%,96%{opacity:1}100%{opacity:0}}.l14{animation:k14 15.8s linear infinite}@keyframes k15{0%,39.97%{opacity:0}40.57%,96%{opacity:1}100%{opacity:0}}.l15{animation:k15 15.8s linear infinite}@keyframes k16{0%,42.64%{opacity:0}43.24%,96%{opacity:1}100%{opacity:0}}.l16{animation:k16 15.8s linear infinite}@keyframes k17{0%,45.30%{opacity:0}45.90%,96%{opacity:1}100%{opacity:0}}.l17{animation:k17 15.8s linear infinite}@keyframes k18{0%,47.97%{opacity:0}48.57%,96%{opacity:1}100%{opacity:0}}.l18{animation:k18 15.8s linear infinite}@keyframes k19{0%,50.63%{opacity:0}51.23%,96%{opacity:1}100%{opacity:0}}.l19{animation:k19 15.8s linear infinite}@keyframes k20{0%,53.30%{opacity:0}53.90%,96%{opacity:1}100%{opacity:0}}.l20{animation:k20 15.8s linear infinite}@keyframes k21{0%,55.96%{opacity:0}56.56%,96%{opacity:1}100%{opacity:0}}.l21{animation:k21 15.8s linear infinite}@keyframes k22{0%,58.63%{opacity:0}59.23%,96%{opacity:1}100%{opacity:0}}.l22{animation:k22 15.8s linear infinite}@keyframes k23{0%,61.29%{opacity:0}61.89%,96%{opacity:1}100%{opacity:0}}.l23{animation:k23 15.8s linear infinite}@keyframes k24{0%,63.96%{opacity:0}64.56%,96%{opacity:1}100%{opacity:0}}.l24{animation:k24 15.8s linear infinite}@keyframes k25{0%,66.62%{opacity:0}67.22%,96%{opacity:1}100%{opacity:0}}.l25{animation:k25 15.8s linear infinite}@keyframes k26{0%,69.29%{opacity:0}69.89%,96%{opacity:1}100%{opacity:0}}.l26{animation:k26 15.8s linear infinite}@keyframes k27{0%,71.95%{opacity:0}72.55%,96%{opacity:1}100%{opacity:0}}.l27{animation:k27 15.8s linear infinite}@media (prefers-reduced-motion: reduce){text{animation:none!important;opacity:1!important}}</style>
+<rect width="900" height="678" rx="14" fill="#0D1117"/>
+<rect width="900" height="40" rx="14" fill="#161B22"/><rect y="26" width="900" height="14" fill="#161B22"/>
+<circle cx="24" cy="20" r="6.5" fill="#FF5F57"/><circle cx="46" cy="20" r="6.5" fill="#FEBC2E"/><circle cx="68" cy="20" r="6.5" fill="#28C840"/>
+<text x="450.0" y="25" font-family="'SF Mono',Menlo,Consolas,'PingFang SC','Noto Sans CJK SC',monospace" font-size="13" fill="#8B949E" text-anchor="middle">pipeline.log — 3 个子阶段 · 1 次返工 · 0 次人工介入</text>
+<g font-family="'SF Mono',Menlo,Consolas,'PingFang SC','Noto Sans CJK SC',monospace" font-size="14.5">
+<text class="l0" x="26" y="76" fill="#E6EDF3" font-weight="700">$ bash pipeline/run.sh</text>
+<text class="l1" x="26" y="97" fill="#8B949E" font-weight="400">流水线启动 开发=gpt-6-astra（沙箱 workspace-write） 验收=claude-opus-5-5 返工上限=2</text>
+<text class="l2" x="26" y="118" fill="#C9D1D9" font-weight="600">当前 S1 需求解析 状态=未开始</text>
+<text class="l3" x="26" y="139" fill="#39C5CF" font-weight="400">开发模型开工 S1</text>
+<text class="l4" x="26" y="160" fill="#8B949E" font-weight="400">程序检查 checks.sh S1</text>
+<text class="l5" x="26" y="181" fill="#F0883E" font-weight="400">验收模型开工 S1</text>
+<text class="l6" x="26" y="202" fill="#56D364" font-weight="700">S1 -&gt; 已通过</text>
+<text class="l7" x="44" y="223" fill="#F0A6CA" font-weight="600">✉  邮件 · S1 需求解析 验收通过</text>
+<text class="l8" x="26" y="244" fill="#C9D1D9" font-weight="600">当前 S2 检索接口 状态=未开始</text>
+<text class="l9" x="26" y="265" fill="#39C5CF" font-weight="400">开发模型开工 S2</text>
+<text class="l10" x="26" y="286" fill="#8B949E" font-weight="400">程序检查 checks.sh S2</text>
+<text class="l11" x="26" y="307" fill="#F0883E" font-weight="400">验收模型开工 S2</text>
+<text class="l12" x="26" y="328" fill="#E3B341" font-weight="700">返工 S2</text>
+<text class="l13" x="44" y="349" fill="#F0A6CA" font-weight="600">✉  邮件 · S2 检索接口 判返工（第 1 次验收）</text>
+<text class="l14" x="26" y="370" fill="#E3B341" font-weight="700">当前 S2 检索接口 状态=返工中</text>
+<text class="l15" x="26" y="391" fill="#39C5CF" font-weight="400">开发模型开工 S2</text>
+<text class="l16" x="26" y="412" fill="#8B949E" font-weight="400">程序检查 checks.sh S2</text>
+<text class="l17" x="26" y="433" fill="#F0883E" font-weight="400">验收模型开工 S2</text>
+<text class="l18" x="26" y="454" fill="#56D364" font-weight="700">S2 -&gt; 已通过</text>
+<text class="l19" x="44" y="475" fill="#F0A6CA" font-weight="600">✉  邮件 · S2 检索接口 验收通过</text>
+<text class="l20" x="26" y="496" fill="#C9D1D9" font-weight="600">当前 S3 导出报告 状态=未开始</text>
+<text class="l21" x="26" y="517" fill="#39C5CF" font-weight="400">开发模型开工 S3</text>
+<text class="l22" x="26" y="538" fill="#8B949E" font-weight="400">程序检查 checks.sh S3</text>
+<text class="l23" x="26" y="559" fill="#F0883E" font-weight="400">验收模型开工 S3</text>
+<text class="l24" x="26" y="580" fill="#56D364" font-weight="700">S3 -&gt; 已通过·待 AI 产品经理亲验</text>
+<text class="l25" x="44" y="601" fill="#F0A6CA" font-weight="600">✉  邮件 · S3 导出报告 验收通过</text>
+<text class="l26" x="26" y="622" fill="#56D364" font-weight="700">全部子阶段已通过</text>
+<text class="l27" x="44" y="643" fill="#F0A6CA" font-weight="600">✉  邮件 · 流水线全部完成</text>
+</g>
+</svg>

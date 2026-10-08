@@ -1,0 +1,13 @@
+#!/bin/bash
+# 假验收模型。FAKE_SCENARIO=happy：S2 第一次判返工，其余通过并留遗留项；=decide：判需决定、可自动、推荐通过。
+prompt="${@: -1}"; stage="$(echo "$prompt" | grep -oE '验收 S[0-9]+' | head -1 | grep -oE 'S[0-9]+')"
+f="$PWD/验收证据/$stage/验收结论.md"; c="$PWD/运行数据/pipeline/fake_count_$stage"
+n=$(( $(cat "$c" 2>/dev/null || echo 0) + 1 )); echo $n > "$c"
+if [ "${FAKE_SCENARIO:-happy}" = decide ]; then
+  printf '结论：需决定\n## 需决定\n要不要放宽上限\n选项 A 放宽\n选项 B 不放\n可自动按推荐：是\n推荐决定：通过\n## 给 AI 产品经理的一句话摘要\n需要你定一下\n' > "$f"
+elif [ "$stage" = S2 ] && [ "$n" = 1 ]; then
+  printf '结论：返工\n## 问题清单\n- 坏了：怎么复现、期望\n## 给 AI 产品经理的一句话摘要\n有个问题要修\n' > "$f"
+else
+  printf '结论：通过\n## 遗留到下一阶段\n- %s 留下的小毛病\n## 给 AI 产品经理的一句话摘要\n%s 都好\n' "$stage" "$stage" > "$f"
+fi
+echo "fake claude: $stage round $n"

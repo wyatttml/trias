@@ -1,0 +1,22 @@
+name: e2e
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  e2e:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ensure UTF-8 locale (Linux)
+        if: runner.os == 'Linux'
+        run: sudo locale-gen en_US.UTF-8
+      - name: Shell syntax
+        run: bash -n pipeline/run.sh && bash -n pipeline/checks.sh && bash -n tests/e2e.sh
+      - name: End-to-end with fake models
+        run: bash tests/e2e.sh
