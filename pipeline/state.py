@@ -7,6 +7,7 @@
   state.py set S1 待验收   -> 改状态；改成「已通过…」时自动填日期；同时刷新「最近更新」
 状态文件：环境变量 STATE_FILE；默认 本脚本目录/../项目状态.md。
 子阶段编号前缀：环境变量 STAGE_PREFIX，默认 S（决策台账的 D1、D2 不会被当成子阶段）。
+编号可以带一两个小写字母后缀：S1a、S1b 是 S1 拆出的子段，共用 手册/S1_*.md。
 """
 import datetime
 import os
@@ -17,7 +18,7 @@ from pathlib import Path
 STATUS = Path(os.environ.get("STATE_FILE") or Path(__file__).resolve().parents[1] / "项目状态.md")
 PREFIX = os.environ.get("STAGE_PREFIX", "S")
 PASSED = ("已通过", "已通过·待 AI 产品经理亲验")
-ROW = re.compile(rf"^\|\s*({re.escape(PREFIX)}\d+)\s+([^|]*?)\s*\|\s*([^|]*?)\s*\|\s*([^|]*?)\s*\|\s*$")
+ROW = re.compile(rf"^\|\s*({re.escape(PREFIX)}\d+[a-z]{{0,2}})\s+([^|]*?)\s*\|\s*([^|]*?)\s*\|\s*([^|]*?)\s*\|\s*$")
 
 
 def rows():

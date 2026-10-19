@@ -16,7 +16,12 @@ jobs:
       - name: Ensure UTF-8 locale (Linux)
         if: runner.os == 'Linux'
         run: sudo locale-gen en_US.UTF-8
-      - name: Shell syntax
-        run: bash -n pipeline/run.sh && bash -n pipeline/checks.sh && bash -n tests/e2e.sh
+      - name: Syntax
+        run: |
+          for f in pipeline/run.sh pipeline/checks.sh pipeline/duty.sh install.sh tests/e2e.sh tests/fakes/codex tests/fakes/claude; do bash -n "$f"; done
+          python3 -m py_compile pipeline/state.py pipeline/notify.py pipeline/tally.py pipeline/run_sh_check.py pipeline/hooks/bigread_guard.py tests/fakes/smoke.py
+      - name: run.sh check (bash -n, shellcheck, unassigned variables)
+        if: runner.os == 'Linux'
+        run: python3 pipeline/run_sh_check.py
       - name: End-to-end with fake models
         run: bash tests/e2e.sh

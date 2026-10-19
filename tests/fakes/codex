@@ -1,7 +1,14 @@
 #!/bin/bash
-# 假执行模型：读 stdin 提示词，认出子阶段，写交付说明，把状态改成「待验收」。
+# 假开发模型：读 stdin 提示词，认出子阶段。检查单提示词只写检查单、不改状态；其余写交付说明，把状态改成「待验收」。
 root=""; while [ $# -gt 0 ]; do case "$1" in -C) root="$2"; shift;; esac; shift; done
-prompt="$(cat)"; stage="$(echo "$prompt" | grep -oE 'S[0-9]+' | head -1)"
-mkdir -p "$root/验收证据/$stage"; echo "做了 $stage" > "$root/验收证据/$stage/交付说明.md"
+prompt="$(cat)"; stage="$(echo "$prompt" | grep -oE 'S[0-9]+[a-z]*' | head -1)"
+mkdir -p "$root/验收证据/$stage"
+cl="$(echo "$prompt" | grep -oE "检查单_第[0-9]+轮\.md" | head -1)"
+if [ -n "$cl" ]; then
+  printf '根子：上一轮只改了表面\n- 现象：a 步失败；错在哪：app.py:1；改法：改根子\n' > "$root/验收证据/$stage/$cl"
+  echo "check $stage" >> "$root/codex_calls.txt"; echo "fake codex: $stage checklist"; exit 0
+fi
+echo "dev $stage" >> "$root/codex_calls.txt"
+echo "做了 $stage" > "$root/验收证据/$stage/交付说明.md"
 STATE_FILE="$root/项目状态.md" python3 "$root/pipeline/state.py" set "$stage" 待验收 >/dev/null
 echo "fake codex: $stage done"
