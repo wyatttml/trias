@@ -3,10 +3,12 @@
 
 主对话要读图片、PDF、超过 BIG_BYTES 的文件时直接拒绝，提示交给只读子代理（成品交 sample-viewer、日志交 log-digger），
 主对话只收结论。大段原文和图片一进主对话就一直占着上下文，后面每一轮都要为它付费。
+另管一件省额度的事（文件顶部 AGENT_MODEL_CHECK 可关）：主对话派通用子代理（general-purpose）又没写 model，会默认跟主模型走，
+核查类的活白花大模型的钱，直接拒绝，提示改派自带便宜模型的只读子代理（code-auditor / sample-viewer / log-digger），或写明 model 再派。
 子代理、无人值守（--permission-mode bypassPermissions，流水线和值守的短会话都是）不拦。任何异常一律放行（fail open），绝不卡住对话。
 
 装法：install.sh --full 会把本文件放到 .claude/hooks/，并打印要加进 .claude/settings.json 的片段：
-  {"hooks": {"PreToolUse": [{"matcher": "Read|Bash", "hooks": [{"type": "command", "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/bigread_guard.py"}]}]}}
+  {"hooks": {"PreToolUse": [{"matcher": "Read|Bash|Agent|Task", "hooks": [{"type": "command", "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/bigread_guard.py"}]}]}}
 """
 import json
 import os
@@ -20,6 +22,10 @@ MEDIA_EXT = {'.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp', '.tif', '.tiff', 
 READ_CMDS = re.compile(r'\b(cat|less|more|open|base64|xxd|hexdump|strings)\b')   # 整段读的命令
 PEEK_CMDS = re.compile(r'\b(head|tail)\b')                                      # 看片段的命令：只拦图片 / PDF
 MEDIA_HINT = '主对话不直接看图片 / PDF：交 sample-viewer 子代理，只收结论。'
+AGENT_MODEL_CHECK = True      # 派通用子代理没写 model 就拦；不想要改成 False
+GENERAL_AGENTS = {'general-purpose', 'claude'}
+AGENT_HINT = ('派通用子代理没写 model，会默认用主模型。大范围只读核查、对账、找文件改派 code-auditor；'
+              '看成品 sample-viewer，翻日志 log-digger；确实要大模型，就写明 model 再派。')
 BIG_HINT = '主对话不整段读大文件：日志交 log-digger，成品交 sample-viewer，只收结论；只看片段请加 limit，或用 head / tail / grep。'
 
 
@@ -39,6 +45,9 @@ def is_big(path):
 
 
 def reason(name, ti):
+    if name in ('Agent', 'Task'):
+        kind = (ti.get('subagent_type') or 'general-purpose').strip()
+        return AGENT_HINT if AGENT_MODEL_CHECK and kind in GENERAL_AGENTS and not ti.get('model') else None
     if name == 'Read':
         p = ti.get('file_path', '')
         if is_media(p):

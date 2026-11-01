@@ -7,6 +7,10 @@
 走 smtp.gmail.com:587 + STARTTLS（很多本机代理挡 465）。缺配置就跳过，只写日志，永不报错。
 弹窗只有「知道了」一个按钮，30 分钟自动消失，不挡流水线。两种情况不弹：环境变量 NOTIFY_NO_POPUP=1
 （调用方自己弹带按钮的窗口时用）；标题以 run.sh 自带按钮弹窗的两类开头（见 DIALOG_TITLES）。
+分三档（环境变量 NOTIFY_LEVEL）：即时（默认）= 弹窗 + 邮件 + webhook；邮件 = 邮件 + webhook，不弹窗；摘要 = 不发，只记事件流，
+留给值守的早上摘要。三档都往事件流 运行数据/pipeline/值守记录.md 追加一行「日期 时间｜通知｜级别｜来源｜标题｜正文第一句」
+（来源取 NOTIFY_SOURCE；NOTIFY_NO_EVENT=1 不记，摘要邮件、进度邮件自己发时用，免得又被当成新事件）。
+写法约定：标题就是结论（出了什么事、要不要你动手）；正文第一句是人话，不写路径、不写「见某文件」；路径放末尾「想细看：」之后。
 用法：notify.py "标题" "正文"。发送记录在 运行数据/pipeline/日志/notify.log。
 """
 import datetime
@@ -23,6 +27,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 LOG = ROOT / "运行数据/pipeline/日志/notify.log"
+EVENTS = ROOT / "运行数据/pipeline/值守记录.md"
+LEVELS = ("即时", "邮件", "摘要")
 CAFILE = "/etc/ssl/cert.pem"  # python.org 版 Python 自带证书库可能为空，优先用系统的
 PREFIX = f"[{ROOT.name}流水线]"
 DIALOG_TITLES = ("流水线停了，等你决定", "再提醒一次：流水线在等你")  # run.sh 已经弹了带「按推荐办」的窗口，不重复弹
@@ -86,12 +92,27 @@ def webhook(e, title, body):
     return f"webhook:{kind}:ok"
 
 
+def event(level, title, body):
+    if os.environ.get("NOTIFY_NO_EVENT") == "1":
+        return
+    one = lambda s: s.replace("\n", " ").replace("｜", "/")  # noqa: E731 一行一事件
+    first = next((x.strip()[:120] for x in body.splitlines() if x.strip()), "")
+    EVENTS.parent.mkdir(parents=True, exist_ok=True)
+    with EVENTS.open("a", encoding="utf-8") as f:
+        f.write("｜".join([datetime.datetime.now().strftime("%Y-%m-%d %H:%M"), "通知", level,
+                          os.environ.get("NOTIFY_SOURCE", "?"), one(title), one(first)]) + "\n")
+
+
 def main():
     title = sys.argv[1]
     body = sys.argv[2] if len(sys.argv) > 2 else ""
+    level = os.environ.get("NOTIFY_LEVEL") if os.environ.get("NOTIFY_LEVEL") in LEVELS else "即时"
+    event(level, title, body)
+    if level == "邮件":
+        os.environ["NOTIFY_NO_POPUP"] = "1"
     e = env()
     results = []
-    for fn in (popup, mail, webhook):
+    for fn in (() if level == "摘要" else (popup, mail, webhook)):
         try:
             r = fn(e, title, body)
             if r:
@@ -101,8 +122,8 @@ def main():
     LOG.parent.mkdir(parents=True, exist_ok=True)
     with LOG.open("a", encoding="utf-8") as f:
         f.write(json.dumps({"at": datetime.datetime.now().isoformat(timespec="seconds"),
-                            "title": title, "body": body[:1000], "results": results}, ensure_ascii=False) + "\n")
-    print(" ".join(results) or "no-channel")
+                            "level": level, "title": title, "body": body[:1000], "results": results}, ensure_ascii=False) + "\n")
+    print(" ".join(results) or ("event-only" if level == "摘要" else "no-channel"))
 
 
 if __name__ == "__main__":

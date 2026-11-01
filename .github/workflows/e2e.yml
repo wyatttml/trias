@@ -19,7 +19,7 @@ jobs:
       - name: Syntax
         run: |
           for f in pipeline/run.sh pipeline/checks.sh pipeline/duty.sh install.sh tests/e2e.sh tests/fakes/codex tests/fakes/claude; do bash -n "$f"; done
-          python3 -m py_compile pipeline/state.py pipeline/notify.py pipeline/tally.py pipeline/run_sh_check.py pipeline/hooks/bigread_guard.py tests/fakes/smoke.py
+          python3 -m py_compile pipeline/state.py pipeline/notify.py pipeline/tally.py pipeline/run_sh_check.py pipeline/ledger_check.py pipeline/status_snapshot.py pipeline/hooks/bigread_guard.py tests/fakes/smoke.py
       - name: run.sh check (bash -n, shellcheck, unassigned variables)
         if: runner.os == 'Linux'
         run: python3 pipeline/run_sh_check.py

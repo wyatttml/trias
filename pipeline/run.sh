@@ -119,7 +119,12 @@ pass_stage(){ # $1 子阶段
   local stg="已通过" nx nm vf="$E/$1/验收结论.md"
   case " $MANUAL_REVIEW_STAGES " in *" $1 "*) stg="已通过·待 AI 产品经理亲验";; esac
   st set "$1" "$stg" >/dev/null; rm -f "$D/rework_$1"
-  [ -f "$D/regress_$1.json" ] && cp "$D/regress_$1.json" "$D/regress_prev.json"   # 本段回归成品记为「上一版」，下一段并排对比用
+  # 本段回归成品记为「上一版」，下一段并排对比用；只跑了部分件时按件合并，没跑的件保留上一版那份
+  [ -f "$D/regress_$1.json" ] && python3 -c 'import json,os,sys
+new, prev = sys.argv[1:3]; d = json.load(open(new, encoding="utf-8"))
+old = json.load(open(prev, encoding="utf-8")) if os.path.exists(prev) else {}
+d["samples"] = {**(old.get("samples") or {}), **(d.get("samples") or {})}
+json.dump(d, open(prev, "w", encoding="utf-8"), ensure_ascii=False, indent=2)' "$D/regress_$1.json" "$D/regress_prev.json"
   nx="$(st next "$1")"
   if [ -f "$vf" ] && [ -n "$nx" ]; then
     nm="$(manual_file "$nx")"
@@ -201,7 +206,11 @@ wait_decision(){ # $1 子阶段 $2 原因 $3 推荐（继续 / 通过 / 返工�
     fi
     case "$last" in
       继续) [ -n "${KEEP_ROUNDS:-}" ] || echo 0 > "$D/rework_$1"; rm -f "$f"; return 0;;
-      通过) pass_stage "$1"; rm -f "$f"; return 0;;
+      通过) if [ "$(jget "$D/accept_$1.json" passed)" != true ]; then   # 程序结果没过（或没有）不能通过，谁写都不行，接着等
+          log "$1 决定写了通过，但 accept_$1.json 的程序结果没过，不能通过，接着等决定"
+          notify "决定写了通过，但程序结果没过（${1}）" "测试、冒烟或回归没过，按规矩不能标通过。请在决定文件末尾写「继续」或「返工：要改什么」。"$'\n\n'"想细看：$D/accept_$1.json、$f"
+          printf '原因：决定写了「通过」，但程序结果没过，不能通过。请写 继续 / 返工：要改什么\n----\n' >> "$f"; auto=0; rec="继续"; sleep "$POLL"; continue; fi
+        pass_stage "$1"; rm -f "$f"; return 0;;
       返工：*|返工:*) x="${last#返工：}"; x="${x#返工:}"
         [ "$x" = "按验收结论" ] || echo "$x" > "$D/返工单_$1.md"
         [ -n "$gate" ] || echo 0 > "$D/rework_$1"   # 返工待定稿那次不清零轮数
@@ -220,6 +229,22 @@ wait_manual(){ # $1 子阶段：本段手册还没写好就等着（只通知一
     fi
     sleep "$MANUAL_WAIT"
   done
+}
+ledger_wait(){ # $1 子阶段：开工前查一本账（「到期 = 本段开工前」没结的就等）和手册核对（核对后点名文件改动太多就等重核）
+  local due ck said=0; RECHECK_NOTE=""; [ -f "$P/ledger_check.py" ] || return 0
+  until due="$(python3 "$P/ledger_check.py" --due "$1")"; do
+    stop_requested && { log "收到停止"; exit 0; }
+    [ "$said" = 1 ] || { said=1; log "$1 开工前账上还有没结的：$(echo "$due" | sed 's/（.*//' | tr '\n' ' ')"
+      notify "$1 开工前还有事没做完，流水线在等" "一本账里有 $(echo "$due" | grep -c .) 条写着「$1 开工前」要做完，做完改成「已结」，流水线自己接着跑。"$'\n'"$due"$'\n\n'"想细看：$ROOT/未结待办.md"; }
+    sleep "$MANUAL_WAIT"
+  done; said=0
+  while ck="$(python3 "$P/ledger_check.py" --recheck "$1" "$M/$(manual_file "$1")")"; [ "$(echo "$ck" | head -n 1)" = stop ]; do
+    stop_requested && { log "收到停止"; exit 0; }
+    [ "$said" = 1 ] || { said=1; log "$1 手册要重核：$(echo "$ck" | sed -n 2p)"
+      notify "$1 手册要先重核再开工" "手册核对之后，它点名的代码改了不少。方案模型按现在的代码重核手册、改手册头「核对主干：<提交号>」并提交，流水线自己接着跑。"$'\n\n'"$(echo "$ck" | sed 1d)"; }
+    sleep "$MANUAL_WAIT"
+  done
+  [ "$(echo "$ck" | head -n 1)" = note ] && RECHECK_NOTE="$(echo "$ck" | sed 1d)"; return 0
 }
 
 # ---------- 一个子阶段走一步（按当前状态分支） ----------
@@ -256,8 +281,10 @@ run_stage(){ # $1 子阶段 $2 状态
         fi
         render "$P/prompts/dev_rework.md" STAGE="$stage" NAME="$name" FILE="$file" ROUND="$n" SANDBOX_NOTE="$(sandbox_note dev)" VERDICT_FILE="$v" > "$D/${stage}_prompt.md"
       else
+        [ "$status" = 未开始 ] && ledger_wait "$stage"
         st set "$stage" "开发中" >/dev/null
         render "$P/prompts/dev_start.md" STAGE="$stage" NAME="$name" FILE="$file" SANDBOX_NOTE="$(sandbox_note dev)" > "$D/${stage}_prompt.md"
+        [ -n "${RECHECK_NOTE:-}" ] && printf '\n\n## 手册核对之后代码的变化（流水线自动附）\n%s\n\n现状以代码为准，和手册不一致的地方写进「开工核对」。\n' "$RECHECK_NOTE" >> "$D/${stage}_prompt.md"
       fi
       run_codex "$stage" "$D/${stage}_prompt.md" || run_codex "$stage" "$D/${stage}_prompt.md" \
         || { wait_fail "$stage" "开发模型连续两次异常退出，日志在 $L"; return; }

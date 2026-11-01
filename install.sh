@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 # Trias 一行接入：在你的项目根目录执行
 #   curl -fsSL https://raw.githubusercontent.com/wyatttml/trias/main/install.sh | bash                 # 只装核心
-#   curl -fsSL https://raw.githubusercontent.com/wyatttml/trias/main/install.sh | bash -s -- --full     # 再加值守、审稿包、读大文件拦截、两个只读子代理
+#   curl -fsSL https://raw.githubusercontent.com/wyatttml/trias/main/install.sh | bash -s -- --full     # 再加值守与看板、审稿包、读大文件拦截、三个只读子代理
 # 做的事：把 pipeline/ 与模板拷进当前目录；已存在的文件一律跳过，不覆盖；不创建 .env，不改任何已有代码，不改你的 .claude/settings.json。
 # 可选环境变量：TRIAS_REF=分支或标签（默认 main）   TRIAS_SRC=本地仓库路径（离线安装 / 自测用）
+# 从旧版升级：已存在的文件一律跳过，所以重跑只会补上新文件（新版的 ledger_check.py、status_snapshot.py 等）；
+#   改过的旧文件（run.sh、duty.sh、notify.py、提示词）要自己对照新版合并，或删掉后重跑安装。
 set -euo pipefail
 REPO="wyatttml/trias"; REF="${TRIAS_REF:-main}"; DEST="$(pwd)"
 say(){ printf '\033[1;33m⚖\033[0m  %s\n' "$*"; }
@@ -26,23 +28,26 @@ put(){ # put 源 目标：目标已存在就跳过
   mkdir -p "$(dirname "$DEST/$2")"; cp "$SRC/$1" "$DEST/$2"; echo "   新增 $2"; copied=$((copied+1))
 }
 say "安装到 ${DEST}（$( [ "$FULL" = 1 ] && echo 全套 || echo 核心)）"
-for f in run.sh state.py notify.py checks.sh tally.py run_sh_check.py \
+for f in run.sh state.py notify.py checks.sh tally.py run_sh_check.py ledger_check.py \
          prompts/dev_start.md prompts/dev_rework.md prompts/accept.md prompts/check.md prompts/fix.md; do put "pipeline/$f" "pipeline/$f"; done
 chmod +x "$DEST/pipeline/run.sh" "$DEST/pipeline/checks.sh" 2>/dev/null || true
 put templates/AGENTS.md AGENTS.md
 put templates/CLAUDE.md CLAUDE.md
 put templates/项目状态.md 项目状态.md
+put templates/未结待办.md 未结待办.md
+put templates/交接_最新.md 交接模板.md
 put templates/停了怎么办.md pipeline/停了怎么办.md
 put templates/.env.example .env.example
 put "templates/手册_Sn_子阶段名.md" "手册/_模板_Sn_子阶段名.md"
 
 if [ "$FULL" = 1 ]; then
-  for f in duty.sh prompts/duty_incident.md prompts/duty_decide.md prompts/review_planner.md prompts/review_reviser.md; do put "pipeline/$f" "pipeline/$f"; done
+  for f in duty.sh status_snapshot.py prompts/duty_incident.md prompts/duty_decide.md prompts/review_planner.md prompts/review_reviser.md prompts/review_dev.md; do put "pipeline/$f" "pipeline/$f"; done
   chmod +x "$DEST/pipeline/duty.sh" 2>/dev/null || true
   put templates/审稿包模板.md 审稿包模板.md
   put pipeline/hooks/bigread_guard.py .claude/hooks/bigread_guard.py
   put templates/agents/sample-viewer.md .claude/agents/sample-viewer.md
   put templates/agents/log-digger.md .claude/agents/log-digger.md
+  put templates/agents/code-auditor.md .claude/agents/code-auditor.md
 fi
 
 touch "$DEST/.gitignore"
@@ -53,7 +58,7 @@ say "完成：新增 $copied 个文件，跳过 $skipped 个。接下来："
 cat <<'EOF'
    1. cp .env.example .env，填 Gmail 应用专用密码（可选，不填就只写日志）
    2. 让方案模型照 手册/_模板_Sn_子阶段名.md 写 手册/00_总方案.md 与 手册/S1_xxx.md …
-   3. 把 项目状态.md 进度表改成你的子阶段
+   3. 把 项目状态.md 进度表改成你的子阶段；跨对话没结的事记进 未结待办.md（一本账，先删掉里面那行例子）
    4. 改 pipeline/checks.sh 里的测试命令，手跑：bash pipeline/checks.sh S1
    5. 启动：nohup bash pipeline/run.sh >> 运行数据/pipeline/日志/nohup.out 2>&1 &
    完整说明：https://github.com/wyatttml/trias/blob/main/docs/DESIGN.md
@@ -62,8 +67,9 @@ if [ "$FULL" = 1 ]; then cat <<'EOF'
    全套还要两步：
    6. 值守：nohup bash pipeline/duty.sh >> 运行数据/pipeline/日志/duty.log 2>&1 &
       去睡觉时 echo 睡觉 > 运行数据/pipeline/值守模式，回来改回「日常」
-   7. 读大文件拦截：把下面这段并进 .claude/settings.json（安装脚本不改你的设置）
-      {"hooks": {"PreToolUse": [{"matcher": "Read|Bash", "hooks": [{"type": "command",
+      看板：浏览器打开 运行数据/pipeline/看板.html；接手的模型先读 运行数据/pipeline/现状.md
+   7. 读大文件拦截（顺带拦「派通用子代理没写模型」）：把下面这段并进 .claude/settings.json（安装脚本不改你的设置）
+      {"hooks": {"PreToolUse": [{"matcher": "Read|Bash|Agent|Task", "hooks": [{"type": "command",
         "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/bigread_guard.py"}]}]}}
 EOF
 fi

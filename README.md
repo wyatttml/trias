@@ -22,7 +22,7 @@ curl -fsSL https://raw.githubusercontent.com/wyatttml/trias/main/install.sh | ba
   <a href="https://github.com/wyatttml/trias/releases"><img src="https://img.shields.io/github/v/release/wyatttml/trias?style=flat-square&label=release" alt="Release"></a>
   <a href="https://github.com/wyatttml/trias/actions/workflows/e2e.yml"><img src="https://img.shields.io/github/actions/workflow/status/wyatttml/trias/e2e.yml?style=flat-square&label=e2e%20%C2%B7%20macOS%20%2B%20Linux" alt="e2e"></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-22C55E?style=flat-square" alt="MIT"></a>
-  <img src="https://img.shields.io/badge/run.sh-353_行-4EAA25?style=flat-square&logo=gnubash&logoColor=white" alt="run.sh 353 行">
+  <img src="https://img.shields.io/badge/run.sh-380_行-4EAA25?style=flat-square&logo=gnubash&logoColor=white" alt="run.sh 380 行">
   <img src="https://img.shields.io/badge/依赖-0（bash_%2B_python3_标准库）-8B5CF6?style=flat-square" alt="零依赖">
 </p>
 
@@ -59,13 +59,14 @@ curl -fsSL https://raw.githubusercontent.com/wyatttml/trias/main/install.sh | ba
 | 📏 **程序说了算** | 测试、冒烟、密钥扫描由脚本跑出结果；验收员写了「通过」但程序结果没过，脚本直接改判返工。 |
 | 🪜 **返工四级** | 同一项第 1 次失败执行模型修，第 2 次先出检查单再修，第 3 次验收模型亲修，第 4 次交方案模型。不会无限循环，也不会一直让同一个模型撞墙。 |
 | 🩺 **先分诊再返工** | 只有程序行为错才返工；成品质量进「调优清单」由人改提示词和模板；网络故障不算轮次，自动重跑。 |
+| 📒 **一本账，不靠记性** | 跨对话没结的事只记一本账；写着「S2 开工前」的没结，S2 就不开工。手册写好太久、代码早变了，开工前先重核。现状由程序每轮重算成现状页和看板，不写进规则卡。 |
 | 🌙 **没人在也能跑** | 可选的值守脚本不用 AI、常驻后台：出事起一次性短会话按故障说明处理，返工单夜里照草稿办。 |
 | 📮 **少打扰** | 只有几类事一定等人：新开付费服务、删数据、改范围、改密钥配置、返工用完、额度用完。其余 10 分钟没人答就按推荐办。 |
 | 🔌 **每一块都能换** | 换模型、换通知渠道、换语言、换成非代码项目，都只改一个函数或一个文件。 |
 
 ## 🚀 30 秒体验
 
-不需要任何 API Key。自测用假模型在临时目录里跑完整闭环，14 个场景、57 条断言：
+不需要任何 API Key。自测用假模型在临时目录里跑完整闭环，19 个场景、75 条断言：
 
 ```bash
 git clone https://github.com/wyatttml/trias.git && cd trias
@@ -73,7 +74,7 @@ bash tests/e2e.sh
 ```
 
 <details>
-<summary>14 个场景（点击展开）</summary>
+<summary>19 个场景（点击展开）</summary>
 
 ```text
 场景一：开发 → 程序检查 → 验收 → 返工一轮 → 通过 → 遗留追加 → 亲验标记 → 全部完成
@@ -86,10 +87,15 @@ bash tests/e2e.sh
 场景八：等手册 + 子段共用手册 + 遗留暂存
 场景九：有值守时，返工先进「返工待定稿」，不发「等你决定」
 场景十：值守假跑——夜里按草稿办、白天到点按草稿办、日志出事起短会话
-场景十一：审稿包假跑——夜里三次串到「已定」；卡住的记失败不重试
-场景十二：读大文件拦截
+场景十一：审稿包假跑——夜里三次串到「已定」并自动入账；卡住的记失败不重试；要开发模型审的先起它
+场景十二：读大文件拦截、派通用子代理没写模型拦截
 场景十三：改 run.sh 后的检查
 场景十四：一行安装 --full——可选组件都装上，不改用户设置
+场景十五：一本账——账上「S2 开工前」没结就停在段首 → 改成已结自己接着跑；规则卡、交接的毛病只提醒不拦
+场景十六：手册重核——核对之后点名文件改动多就 stop，少就 note，没写核对行就 none
+场景十七：上一版回归按件合并——S2 只跑了部分件，没跑的件保留 S1 那份
+场景十八：决定写了「通过」但程序结果没过——不标通过，接着等
+场景十九：值守每轮出快照——现状.md、看板.html；通知三档
 
 全部通过
 ```
@@ -103,7 +109,7 @@ bash tests/e2e.sh
 | | 只装核心（默认） | 全套（`--full`） |
 | --- | --- | --- |
 | 命令 | `curl -fsSL …/install.sh \| bash` | `curl -fsSL …/install.sh \| bash -s -- --full` |
-| 装什么 | 编排脚本、程序检查、计数定级、通知、`run.sh` 检查，开工 / 返工 / 验收 / 检查单 / 亲修五份提示词，规则卡与模板 | 核心 + 值守、审稿包循环、读大文件拦截钩子、两个只读子代理 |
+| 装什么 | 编排脚本、程序检查、计数定级、通知、`run.sh` 检查、一本账检查，开工 / 返工 / 验收 / 检查单 / 亲修五份提示词，规则卡、一本账与模板 | 核心 + 值守与看板、审稿包循环、读大文件拦截钩子、三个只读子代理 |
 | 适合 | 你人在电脑旁，卡住了收邮件处理 | 想让它通宵跑，或对话上下文总是被大文件撑爆 |
 | 后台进程 | 1 个（`run.sh`） | 2 个（再加 `duty.sh`） |
 
@@ -211,8 +217,9 @@ stateDiagram-v2
 | --- | --- | --- | --- | --- |
 | **值守** `pipeline/duty.sh` | 没人在时：出事起短会话按故障说明处理；返工单先起草，白天给你看 10 分钟、夜里直接办；夜里「一直等」的决定交方案模型起草 | 不装 | `nohup bash pipeline/duty.sh &`；去睡觉 `echo 睡觉 > 运行数据/pipeline/值守模式` | 和单人用法一样：返工直接交执行模型，等人的事照常通知 |
 | **审稿包** `审稿包模板.md` | 方案要方案模型审时，两个模型不互发消息，靠一份文件顶部的状态行走两轮，第 2 轮敲定 | 不装 | 复制模板为 `审稿包_XX.md`；白天你在两个窗口各贴一句，夜里值守串 | 你自己在对话里来回转述 |
-| **读大文件拦截** `.claude/hooks/bigread_guard.py` | 主对话读图片、PDF、超 200 KB 的文件直接拒绝，提示交子代理，上下文不被撑爆 | 不装 | 把安装时打印的片段并进 `.claude/settings.json` | 大日志、截图进主对话，后面每一轮都为它付费 |
-| **只读子代理** `.claude/agents/` | `sample-viewer` 看成品、截图，`log-digger` 翻日志，只回结论 | 不装 | 装上就能用：「让 log-digger 查一下 S2 为什么挂」 | 主对话自己读 |
+| **读大文件拦截** `.claude/hooks/bigread_guard.py` | 主对话读图片、PDF、超 200 KB 的文件直接拒绝，提示交子代理，上下文不被撑爆；派通用子代理没写模型也拦，免得核查活默认用大模型 | 不装 | 把安装时打印的片段并进 `.claude/settings.json` | 大日志、截图进主对话，后面每一轮都为它付费 |
+| **现状快照与看板** `pipeline/status_snapshot.py` | 值守每轮重算一页 `现状.md`（接手的模型先读它）和一张 `看板.html`（到哪了、要我做什么、有没有卡住）；早上一封摘要，进度攒 30 分钟一封，卡住 3 小时提醒 | 不装 | 随值守自动跑；浏览器打开 `运行数据/pipeline/看板.html` | 想知道到哪了就翻日志 |
+| **只读子代理** `.claude/agents/` | `sample-viewer` 看成品、截图，`log-digger` 翻日志，`code-auditor` 对账、查代码走哪条路，只回结论 | 不装 | 装上就能用：「让 log-digger 查一下 S2 为什么挂」 | 主对话自己读 |
 
 ## 📮 你会收到什么
 
@@ -226,7 +233,7 @@ stateDiagram-v2
 | 异常退出 | `流水线异常退出` | 新开一个对话，粘贴通知里的那句话 |
 | 全部完成 | `流水线全部完成` | 去总验 |
 
-Gmail 开箱即用，macOS 同时弹窗；Slack、飞书、企业微信机器人在 `.env` 里加一行就能收。装了值守还会收到「返工草稿待你看」「夜里已定」「出事处理结果」。
+Gmail 开箱即用，macOS 同时弹窗；Slack、飞书、企业微信机器人在 `.env` 里加一行就能收。装了值守还会收到「返工草稿待你看」、出事处理结果，以及早上摘要和进度邮件；「夜里已定」「已自动恢复」这类不用你管的只进早上摘要，不半夜打扰。标题就是结论，路径放在末尾「想细看」。
 
 ## 🧯 踩坑博物馆
 
@@ -256,10 +263,12 @@ pipeline/
 ├─ state.py          读写进度表
 ├─ notify.py         Gmail + webhook + macOS 弹窗
 ├─ run_sh_check.py   改 run.sh 后、重启前的检查
+├─ ledger_check.py   一本账：段首到期拦停、手册重核、格式提醒
 ├─ duty.sh           值守（可选）
-├─ hooks/            读大文件拦截（可选）
-└─ prompts/          开工 · 返工 · 验收 · 检查单 · 亲修；值守两份、审稿两份（可选）
-templates/           规则卡（AGENTS.md 给执行模型、CLAUDE.md 给方案和验收模型）· 项目状态 · 手册 · 故障说明 · 审稿包 · 子代理
+├─ status_snapshot.py 现状页、看板、摘要与进度邮件（可选）
+├─ hooks/            读大文件拦截 + 子代理没写模型拦截（可选）
+└─ prompts/          开工 · 返工 · 验收 · 检查单 · 亲修；值守两份、审稿三份（可选）
+templates/           规则卡（AGENTS.md 给执行模型、CLAUDE.md 给方案和验收模型）· 项目状态 · 一本账 · 交接 · 手册 · 故障说明 · 审稿包 · 子代理
 install.sh           一行接入（--full 装全套）
 docs/DESIGN.md       完整设计：原理、返工四级、值守、审稿包、踩坑、DIY 替换表
 tests/e2e.sh         假模型端到端自测，CI 在 macOS 与 Linux 上跑
