@@ -22,7 +22,7 @@ SANS = "'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sa
 MONO = "'SF Mono',Menlo,Consolas,'PingFang SC','Noto Sans CJK SC',monospace"
 GOLD, CREAM, GPT, OPUS = "#C9A063", "#F5E6C8", "#10A37F", "#D97757"
 
-PILLS = ["≈350 行 bash", "零依赖", "无人值守", "卡住才发邮件"]
+PILLS = ["≈380 行 bash", "零依赖", "无人值守", "卡住才发邮件"]
 COLUMNS = [("立法", "Fable", "写手册", OPUS), ("执行", "GPT · Codex", "写代码", GPT), ("司法", "Opus", "做验收", OPUS)]
 
 

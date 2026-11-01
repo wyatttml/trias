@@ -13,7 +13,7 @@
 <text x="76" y="282" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="20" fill="#C9D0EA">一个模型立法，一个模型执行，另一家的模型司法。</text>
 <text x="76" y="312" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="20" fill="#C9D0EA">你只管看邮件。</text>
 <rect x="76.0" y="344" width="146" height="35" rx="18" fill="#FFFFFF" fill-opacity=".07" stroke="#FFFFFF" stroke-opacity=".18"/>
-<text x="149.0" y="365" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="17" fill="#DCE2F5" text-anchor="middle">≈350 行 bash</text>
+<text x="149.0" y="365" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="17" fill="#DCE2F5" text-anchor="middle">≈380 行 bash</text>
 <rect x="234.0" y="344" width="85" height="35" rx="18" fill="#FFFFFF" fill-opacity=".07" stroke="#FFFFFF" stroke-opacity=".18"/>
 <text x="276.5" y="365" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="17" fill="#DCE2F5" text-anchor="middle">零依赖</text>
 <rect x="331.0" y="344" width="102" height="35" rx="18" fill="#FFFFFF" fill-opacity=".07" stroke="#FFFFFF" stroke-opacity=".18"/>

@@ -8,7 +8,7 @@
 
 <p>
 One model <b>legislates</b> (writes the manuals). One model <b>executes</b> (writes the code). A model from <b>another vendor</b> <b>judges</b> (reviews).<br>
-A ~350-line bash state machine rotates them unattended, and only emails you when it is stuck.
+A ~380-line bash state machine rotates them unattended, and only emails you when it is stuck.
 </p>
 
 <p><em>A model that writes and grades its own work will go easy on itself. Split the powers and it can't.</em></p>
